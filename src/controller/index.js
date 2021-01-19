@@ -1,20 +1,22 @@
 const fetch = require('node-fetch');
 
+// rates API controller
+exports.ratesController = async (req, res) => {
+  const base = req.query.base, currency = req.query.currency;
+  try {
+    const response = await fetch(`https://api.exchangeratesapi.io/latest?base=${base}&symbols=${currency}`);
+    const data = await response.json();
 
-// Welcome controller
-exports.ratesController = (req, res) => {
-  console.log(req.query.base);
-  console.log(req.query.currency);
-
-  fetch('https://api.exchangeratesapi.io/latest')
-    .then(response => response.json())
-    .then(data => {
-      console.log(data)
-    })
-    .catch(err => console.log('err'))
-
-  // return res.json({ 
-  //   success: true, 
-  //   message: `Welcome to /api/rates services` 
-  // });
+    if (data.error) {
+      return res.status(400).send(data);
+    } else {
+      return res.status(200).json({ results: data });
+    }
+    
+  } catch (error) {
+    return res.status(501).json({ 
+      success: false, 
+      message: `Internal server error.` 
+    });
+  }
 }
